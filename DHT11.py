@@ -47,6 +47,7 @@ def loop():
     distance=0
     while(True):
         if GPIO.input(buttonPin)==GPIO.LOW:
+            #shutdown when switch is help down
             os.system("shutdown now -h")
         #print(get_date_now())
         sumCnt += 1         #counting number of reading times
