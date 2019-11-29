@@ -47,7 +47,8 @@ def loop():
     distance=0
     while(True):
         if GPIO.input(buttonPin)==GPIO.LOW:
-            #shutdown when switch is help down
+            #shutdown when switch is held down
+            GPIO.cleanup()
             os.system("shutdown now -h")
         #print(get_date_now())
         sumCnt += 1         #counting number of reading times
@@ -78,14 +79,14 @@ def loop():
             hum_average = sum(humidity_list) / len(humidity_list) 
 
             #temp file to lock file reader for plotting
-            f = open("lock.txt", 'w')
-            with open('envfile.data', 'wb') as filehandle:  
+            f = open("/home/pi/Projects/Device/TaH/lock.txt", 'w')
+            with open('/home/pi/Projects/Device/TaH/envfile.data', 'wb') as filehandle:  
                 # store the data as binary data stream
                 pickle.dump(temperature_list, filehandle)
                 pickle.dump(humidity_list, filehandle)
                 pickle.dump(distance, filehandle)
             f.close()
-            os.remove("lock.txt")
+            os.remove("/home/pi/Projects/Device/TaH/lock.txt")
             # need to compensate for bad numbers so can't increase or decrease more than 15% in one sample
             if temperature > hi_temp and temperature < (temp_average*1.15):
                 hi_temp = temperature
