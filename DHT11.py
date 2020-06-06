@@ -19,6 +19,9 @@ from datetime import datetime
 DHTPin = 15     #define the pin of DHT11
 buttonPin = 12    # define the buttonPin
 ledPin = 11 #LED
+valueDifferentialMinus = .15
+valueDifferentialPlus = 1.15
+
 
 def get_time_now():     # get system time
     return datetime.now().strftime(' %H:%M:%S')
@@ -92,11 +95,11 @@ def loop():
                 temp_average = sum(temperature_list) / len(temperature_list)
                 hum_average = sum(humidity_list) / len(humidity_list) 
             # following logic manages bad value from DHT
-            if temperature > (temp_average - (temp_average*.15)) and temperature < (temp_average*1.15):
+            if temperature > (temp_average - (temp_average*valueDifferentialMinus)) and temperature < (temp_average*valueDifferentialPlus):
                 prev_temp = temperature
             else:
                 temperature = prev_temp
-            if dht.humidity > (hum_average - (hum_average*.15)) and dht.humidity < (hum_average*1.15):
+            if dht.humidity > (hum_average - (hum_average*valueDifferentialMinus)) and dht.humidity < (hum_average*valueDifferentialPlus):
                 prev_hum = dht.humidity
             else:
                 dht.humidity = prev_hum
