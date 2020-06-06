@@ -41,14 +41,15 @@ def loop():
     GPIO.setup(ledPin, GPIO.OUT)   # Set ledPin's mode is output
     GPIO.output(ledPin, GPIO.LOW) # Set ledPin low to off led
     sumCnt = 0              #number of reading times
-    prev_temp = 0
-    prev_hum = 0
+    prev_temp = 50
+    prev_hum = 50
     bad_reading=0
     temperature_list = []
     humidity_list = []
     list_size = 2000
     distance=0
     blinkLed = 1
+    firstPass = 0
     while(True):
         if GPIO.input(buttonPin)==GPIO.LOW:
             loopCnt=0
@@ -83,14 +84,14 @@ def loop():
             if blinkLed == 1:
                 GPIO.output(ledPin, GPIO.HIGH)  # led on
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
-            if len(temperature_list) > list_size:
-                temperature_list.pop(0)
-                humidity_list.pop(0)
-            temperature_list.extend([temperature])
-            humidity_list.extend([dht.humidity])
-            temp_average = sum(temperature_list) / len(temperature_list)
-            hum_average = sum(humidity_list) / len(humidity_list) 
-            # floowing logic manages bad value from DHT
+            if firstPass == 0:
+                temp_average = temperature
+                hum_average = dht.humidity
+                firstPass = 1
+            else:
+                temp_average = sum(temperature_list) / len(temperature_list)
+                hum_average = sum(humidity_list) / len(humidity_list) 
+            # following logic manages bad value from DHT
             if temperature > (temp_average - (temp_average*.15)) and temperature < (temp_average*1.15):
                 prev_temp = temperature
             else:
@@ -99,7 +100,11 @@ def loop():
                 prev_hum = dht.humidity
             else:
                 dht.humidity = prev_hum
-
+            if len(temperature_list) > list_size:
+                temperature_list.pop(0)
+                humidity_list.pop(0)
+            temperature_list.extend([temperature])
+            humidity_list.extend([dht.humidity])
 
             #temp file to lock file reader for plotting
             f = open("/home/pi/Projects/Device/TaH/lock.txt", 'w')
