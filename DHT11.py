@@ -99,10 +99,14 @@ def loop():
                 prev_temp = temperature
             else:
                 temperature = prev_temp
+                print("Bad Temp Value", temperature)
+
             if dht.humidity > (hum_average - (hum_average*valueDifferentialMinus)) and dht.humidity < (hum_average*valueDifferentialPlus):
                 prev_hum = dht.humidity
             else:
                 dht.humidity = prev_hum
+                print("Bad Hum Value",dht.humidity)
+
             if len(temperature_list) > list_size:
                 temperature_list.pop(0)
                 humidity_list.pop(0)
@@ -122,7 +126,7 @@ def loop():
 
         else:
             bad_reading+=1
-            #LCD.run_lcd("Bad DHT Reading ","","","")
+            LCD.run_lcd("Bad DHT Reading ","","","")
 
         time.sleep(3)
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)
