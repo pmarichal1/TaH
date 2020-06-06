@@ -50,7 +50,7 @@ while(1):
         plt.xlabel("Time (5s)")
         plt.ylabel("Humidity % and Temp (F)")
         #plt.plot(yarr, hum_final_list, yarr1, temp_final_list)
-        plt.plot(yarr, hum_final_list, label='Hum')
+        plt.plot(yarr, hum_final_list, label='Humidity')
         plt.plot(yarr1, temp_final_list, label='Temp')
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.00), shadow=True, ncol=2)
         plt.draw()
