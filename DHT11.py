@@ -10,6 +10,7 @@ import time
 import os
 import Freenove_DHT as DHT
 import LCD
+#import Blink
 import pickle
 import socket
 from datetime import datetime
@@ -48,8 +49,13 @@ def loop():
     while(True):
         if GPIO.input(buttonPin)==GPIO.LOW:
             #shutdown when switch is held down
-            GPIO.cleanup()
-            os.system("shutdown now -h")
+            ###GPIO.cleanup()
+            ###os.system("shutdown now -h")
+            print("shutting down")
+            #LCD.run_lcd("Shutting down ","","","")
+            time.sleep(3)
+
+
         #print(get_date_now())
         sumCnt += 1         #counting number of reading times
         chk = dht.readDHT11()     #read DHT11 and get a return value. Then determine whether data read is normal according to the return value.
