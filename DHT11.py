@@ -18,6 +18,7 @@ from datetime import datetime
 # time function
 DHTPin = 15     #define the pin of DHT11
 buttonPin = 12    # define the buttonPin
+ledPin = 11 #LED
 
 def get_time_now():     # get system time
     return datetime.now().strftime(' %H:%M:%S')
@@ -34,8 +35,11 @@ host = socket.gethostname()
 
 # main loop
 def loop():
+    GPIO.setmode(GPIO.BOARD)       # Numbers GPIOs by physical location
     dht = DHT.DHT(DHTPin)   #create a DHT class object
     GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)    # Set buttonPin's mode is input, and pull up to high level(3.3V)
+    GPIO.setup(ledPin, GPIO.OUT)   # Set ledPin's mode is output
+    GPIO.output(ledPin, GPIO.LOW) # Set ledPin low to off led
     sumCnt = 0              #number of reading times
     hi_temp = 0
     low_temp = 150
@@ -44,18 +48,35 @@ def loop():
     bad_reading=0
     temperature_list = []
     humidity_list = []
-    list_size = 200
+    list_size = 2000
     distance=0
+    blinkLed = 1
     while(True):
         if GPIO.input(buttonPin)==GPIO.LOW:
-            #shutdown when switch is held down
-            ###GPIO.cleanup()
-            ###os.system("shutdown now -h")
-            print("shutting down")
-            #LCD.run_lcd("Shutting down ","","","")
+            loopCnt=0
+            buttonPressed=0
+            LCD.run_lcd("Confirm Shutdown ","","","")
             time.sleep(3)
+            while(loopCnt < 5):
+                loopCnt= loopCnt+1
+                print("DEBUG", loopCnt, buttonPressed)
+                
+                if GPIO.input(buttonPin)==GPIO.LOW:
+                    buttonPressed = buttonPressed + 1
+                if buttonPressed > 3:
+                    LCD.run_lcd("Shutting Down Now ","","","")
+                    print("Down", loopCnt, GPIO.input(buttonPin))
+                    #shutdown when switch is held down
+                    ##GPIO.cleanup()
+                    ##os.system("shutdown now -h")
+                if blinkLed == 1:
+                    blinkLed  = 0
+                else:
+                    blinkLed = 1
+                time.sleep(1)
+            print("blinkLed", blinkLed, buttonPressed)
 
-
+        time.sleep(3)
         #print(get_date_now())
         sumCnt += 1         #counting number of reading times
         chk = dht.readDHT11()     #read DHT11 and get a return value. Then determine whether data read is normal according to the return value.
@@ -74,7 +95,11 @@ def loop():
         #print temp and humidity to LCD
         temperature = float("%.2f" % dht.temperature)
         #if temperature > 0 and dht.humidity > 0:
+        print("LOOPING")
         if chk == 0:
+            print("Good Reading", blinkLed)
+            if blinkLed == 1:
+                GPIO.output(ledPin, GPIO.HIGH)  # led on
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
             if len(temperature_list) > list_size:
                 temperature_list.pop(0)
@@ -102,12 +127,16 @@ def loop():
                 hi_hum = dht.humidity
             if dht.humidity < low_hum and dht.humidity > (hum_average - (hum_average*.15)):
                 low_hum = dht.humidity
+            GPIO.output(ledPin, GPIO.LOW) # led off
             #print("Current Humidity :     %.2f, \t Current Temperature :     %.2f"%(dht.humidity, temperature))
             #print("Average Humidity :     %.2f, \t Average Temperature :     %.2f"%(hum_average, temp_average))
             #print("Hi Humidity :          %.2f, \t Hi Temperature :          %.2f"%(hi_hum, hi_temp))
             #print("Low Humidity :         %.2f, \t Low Temperature :         %.2f"%(low_hum, low_temp))
         else:
             bad_reading+=1
+            #LCD.run_lcd("Bad DHT Reading ","","","")
+            print("Bad DHT Read")
+
 
 
         #print(temperature_list)
@@ -124,5 +153,6 @@ if __name__ == '__main__':
         loop()
     except KeyboardInterrupt:
         GPIO.cleanup()
+        GPIO.output(ledPin, GPIO.LOW) # Set ledPin low to off led
         exit()  
 
