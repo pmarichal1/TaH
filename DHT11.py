@@ -59,22 +59,19 @@ def loop():
             time.sleep(3)
             while(loopCnt < 5):
                 loopCnt= loopCnt+1
-                print("DEBUG", loopCnt, buttonPressed)
                 
                 if GPIO.input(buttonPin)==GPIO.LOW:
                     buttonPressed = buttonPressed + 1
                 if buttonPressed > 3:
                     LCD.run_lcd("Shutting Down Now ","","","")
-                    print("Down", loopCnt, GPIO.input(buttonPin))
                     #shutdown when switch is held down
-                    ##GPIO.cleanup()
-                    ##os.system("shutdown now -h")
+                    GPIO.cleanup()
+                    os.system("shutdown now -h")
                 if blinkLed == 1:
                     blinkLed  = 0
                 else:
                     blinkLed = 1
                 time.sleep(1)
-            print("blinkLed", blinkLed, buttonPressed)
 
         time.sleep(3)
         #print(get_date_now())
@@ -95,9 +92,7 @@ def loop():
         #print temp and humidity to LCD
         temperature = float("%.2f" % dht.temperature)
         #if temperature > 0 and dht.humidity > 0:
-        print("LOOPING")
         if chk == 0:
-            print("Good Reading", blinkLed)
             if blinkLed == 1:
                 GPIO.output(ledPin, GPIO.HIGH)  # led on
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
@@ -135,7 +130,6 @@ def loop():
         else:
             bad_reading+=1
             #LCD.run_lcd("Bad DHT Reading ","","","")
-            print("Bad DHT Read")
 
 
 
