@@ -49,7 +49,7 @@ def loop():
     bad_reading=0
     temperature_list = []
     humidity_list = []
-    list_size = 2000
+    list_size = 9000
     distance=0
     blinkLed = 1
     firstPass = 0
@@ -75,7 +75,7 @@ def loop():
                     blinkLed = 1
                 time.sleep(1)
 
-        time.sleep(3)
+        #time.sleep(3)
         #print(get_date_now())
         sumCnt += 1         #counting number of reading times
         chk = dht.readDHT11()     #read DHT11 and get a return value. Then determine whether data read is normal according to the return value.
@@ -125,12 +125,31 @@ def loop():
             GPIO.output(ledPin, GPIO.LOW) # led off
 
         else:
+            temperature = prev_temp
+            dht.humidity = prev_hum
+            if len(temperature_list) > list_size:
+                temperature_list.pop(0)
+                humidity_list.pop(0)
+            temperature_list.extend([temperature])
+            humidity_list.extend([dht.humidity])
+
+            #temp file to lock file reader for plotting
+            f = open("/home/pi/Projects/Device/TaH/lock.txt", 'w')
+            with open('/home/pi/Projects/Device/TaH/envfile.data', 'wb') as filehandle:  
+                # store the data as binary data stream
+                pickle.dump(temperature_list, filehandle)
+                pickle.dump(humidity_list, filehandle)
+                pickle.dump(distance, filehandle)
+            f.close()
+            os.remove("/home/pi/Projects/Device/TaH/lock.txt")
+            GPIO.output(ledPin, GPIO.LOW) # led off
             bad_reading+=1
+            
             LCD.run_lcd("Bad DHT Reading ","","","")
 
-        time.sleep(3)
+        time.sleep(5)
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)
-        time.sleep(3)
+        time.sleep(5)
 
         
 if __name__ == '__main__':
