@@ -46,9 +46,11 @@ def loop():
     sumCnt = 0              #number of reading times
     prev_temp = 50
     prev_hum = 50
+    dewPoint = 0
     bad_reading=0
     temperature_list = []
     humidity_list = []
+    dewp_list = []
     list_size = 9000
     distance=0
     blinkLed = 1
@@ -84,9 +86,21 @@ def loop():
         temperature = float("%.2f" % dht.temperature)
         #if temperature > 0 and dht.humidity > 0:
         if chk == 0:
+            dewPoint = (((temperature -30)/2) -((100- dht.humidity)/5) *(9/5) +32)
+
             if blinkLed == 1:
                 GPIO.output(ledPin, GPIO.HIGH)  # led on
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
+            time.sleep(2)
+            if dewPoint < 50:
+                dewPtext = "ok"
+            elif dewPoint > 65:
+                dewPtext = "Very High"
+            else:
+                dewPtext = "High"
+            
+            LCD.run_lcd("DewP F ", str(dewPoint), "", dewPtext)
+
             if firstPass == 0:
                 temp_average = temperature
                 hum_average = dht.humidity
@@ -110,8 +124,11 @@ def loop():
             if len(temperature_list) > list_size:
                 temperature_list.pop(0)
                 humidity_list.pop(0)
+                dewp_list.pop(0)
+                
             temperature_list.extend([temperature])
             humidity_list.extend([dht.humidity])
+            dewp_list.extend([dewPoint])
 
             #temp file to lock file reader for plotting
             f = open("/home/pi/Projects/Device/TaH/lock.txt", 'w')
@@ -119,6 +136,7 @@ def loop():
                 # store the data as binary data stream
                 pickle.dump(temperature_list, filehandle)
                 pickle.dump(humidity_list, filehandle)
+                pickle.dump(dewp_list, filehandle)
                 pickle.dump(distance, filehandle)
             f.close()
             os.remove("/home/pi/Projects/Device/TaH/lock.txt")
@@ -130,8 +148,10 @@ def loop():
             if len(temperature_list) > list_size:
                 temperature_list.pop(0)
                 humidity_list.pop(0)
+                dewp_list.pop(0)
             temperature_list.extend([temperature])
             humidity_list.extend([dht.humidity])
+            dewp_list.extend([dewPoint])
 
             #temp file to lock file reader for plotting
             f = open("/home/pi/Projects/Device/TaH/lock.txt", 'w')
@@ -139,6 +159,7 @@ def loop():
                 # store the data as binary data stream
                 pickle.dump(temperature_list, filehandle)
                 pickle.dump(humidity_list, filehandle)
+                pickle.dump(dewp_list,filehandle)
                 pickle.dump(distance, filehandle)
             f.close()
             os.remove("/home/pi/Projects/Device/TaH/lock.txt")
