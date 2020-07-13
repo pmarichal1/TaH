@@ -86,7 +86,7 @@ def loop():
         temperature = float("%.2f" % dht.temperature)
         #if temperature > 0 and dht.humidity > 0:
         if chk == 0:
-            dewPoint = (((temperature -30)/2) -((100- dht.humidity)/5) *(9/5) +32)
+            dewPoint = (((temperature - 32) * (5/9)) -((100- dht.humidity)/5) *(9/5) +32)
 
             if blinkLed == 1:
                 GPIO.output(ledPin, GPIO.HIGH)  # led on
