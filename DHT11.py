@@ -10,6 +10,8 @@ import time
 import os
 import Freenove_DHT as DHT
 import LCD
+import numpy as np
+
 #import Blink
 import pickle
 import socket
@@ -46,7 +48,8 @@ def loop():
     sumCnt = 0              #number of reading times
     prev_temp = 50
     prev_hum = 50
-    dewPoint = 0
+    prev_dewp = 50
+    dewPoint = 50
     bad_reading=0
     temperature_list = []
     humidity_list = []
@@ -81,15 +84,20 @@ def loop():
         #print(get_date_now())
         sumCnt += 1         #counting number of reading times
         chk = dht.readDHT11()     #read DHT11 and get a return value. Then determine whether data read is normal according to the return value.
+        #ctemp = float("%.2f" % dht.temperature)
+        ctemp = dht.temperature
+        dhum = float("%.2f" % dht.humidity)
         dht.temperature = dht.temperature *(9/5) +32    
         #print temp and humidity to LCD
         temperature = float("%.2f" % dht.temperature)
         #if temperature > 0 and dht.humidity > 0:
-        if chk == 0:
+        if chk == 0 and dht.humidity < 100:
             dewPoint = (((temperature - 32) * (5/9)) -((100- dht.humidity)/5) *(9/5) +32)
-
+            prev_dewp = dewPoint
+            #dewPoint = (((temperature - 32) * (5/9)) -((100- dht.humidity)/5))
+            #dewPoint = (237.3 * [np.log(dhum/100) + ( (17.27*ctemp) / (237.3+ctemp) )]) / (17.27 - [np.log(dhum/100) + ( (17.27*ctemp) / (237.3+ctemp) )])
             if blinkLed == 1:
-                GPIO.output(ledPin, GPIO.HIGH)  # led on
+                GPIO.output(ledPin, GPIO.HIGH)  # led off
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
             time.sleep(2)
             if dewPoint < 50:
@@ -107,19 +115,20 @@ def loop():
                 firstPass = 1
             else:
                 temp_average = sum(temperature_list) / len(temperature_list)
-                hum_average = sum(humidity_list) / len(humidity_list) 
+                hum_average = sum(humidity_list) / len(humidity_list)
+                #print("Hum List", sum(humidity_list), " ", len(humidity_list), "Temp List", sum(temperature_list)," ", len(temperature_list)) 
             # following logic manages bad value from DHT
             if temperature > (temp_average - (temp_average*valueDifferentialMinus)) and temperature < (temp_average*valueDifferentialPlus):
                 prev_temp = temperature
             else:
                 temperature = prev_temp
-                print("Bad Temp Value", temperature)
+                print("Bad Temp Value", temperature, " ", sumCnt)
 
             if dht.humidity > (hum_average - (hum_average*valueDifferentialMinus)) and dht.humidity < (hum_average*valueDifferentialPlus):
                 prev_hum = dht.humidity
             else:
                 dht.humidity = prev_hum
-                print("Bad Hum Value",dht.humidity)
+                print("Bad Hum Value",dht.humidity, " ", sumCnt)
 
             if len(temperature_list) > list_size:
                 temperature_list.pop(0)
@@ -145,6 +154,7 @@ def loop():
         else:
             temperature = prev_temp
             dht.humidity = prev_hum
+            dewPoint = prev_dewp
             if len(temperature_list) > list_size:
                 temperature_list.pop(0)
                 humidity_list.pop(0)
