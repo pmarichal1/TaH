@@ -177,6 +177,18 @@ def loop():
             bad_reading+=1
             
             LCD.run_lcd("Bad DHT Reading ","","","")
+            time.sleep(2)
+            LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
+            time.sleep(2)
+            if dewPoint < 50:
+                dewPtext = "ok"
+            elif dewPoint > 65:
+                dewPtext = "Very High"
+            else:
+                dewPtext = "High"
+            
+            LCD.run_lcd("DewP F ", str(dewPoint), "", dewPtext)
+
 
         time.sleep(5)
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)
