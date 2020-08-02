@@ -92,9 +92,9 @@ def loop():
         temperature = float("%.2f" % dht.temperature)
         #if temperature > 0 and dht.humidity > 0:
         if chk == 0 and dht.humidity < 100:
-            dewPoint = (((temperature - 32) * (5/9)) -((100- dht.humidity)/5) *(9/5) +32)
+            #dewPoint = (((temperature - 32) * (5/9)) -((100- dht.humidity)/5) *(9/5) +32)
             prev_dewp = dewPoint
-            #dewPoint = (((temperature - 32) * (5/9)) -((100- dht.humidity)/5))
+            dewPoint = ((dht.temperature) -((100- dht.humidity)/5))
             #dewPoint = (237.3 * [np.log(dhum/100) + ( (17.27*ctemp) / (237.3+ctemp) )]) / (17.27 - [np.log(dhum/100) + ( (17.27*ctemp) / (237.3+ctemp) )])
             if blinkLed == 1:
                 GPIO.output(ledPin, GPIO.HIGH)  # led off
