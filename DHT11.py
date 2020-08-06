@@ -23,7 +23,35 @@ buttonPin = 12    # define the buttonPin
 ledPin = 11 #LED
 valueDifferentialMinus = .15
 valueDifferentialPlus = 1.15
-
+import sys
+import numpy as np
+ 
+# approximation valid for
+# 0 degC < T < 60 degC
+# 1% < RH < 100%
+# 0 degC < Td < 50 degC 
+ 
+# constants
+a = 17.271
+b = 237.7 # degC
+ 
+# sys.argv[0] is program name
+#T=float(sys.argv[1])
+#RH=float(sys.argv[2])
+ 
+ 
+def dewpoint_approximation(T,RH):
+ 
+    Td = (b * gamma(T,RH)) / (a - gamma(T,RH))
+ 
+    return Td
+ 
+ 
+def gamma(T,RH):
+ 
+    g = (a * T / (b + T)) + np.log(RH/100.0)
+ 
+    return g
 
 def get_time_now():     # get system time
     return datetime.now().strftime(' %H:%M:%S')
@@ -94,7 +122,8 @@ def loop():
         if chk == 0 and dht.humidity < 100:
             #dewPoint = (((temperature - 32) * (5/9)) -((100- dht.humidity)/5) *(9/5) +32)
             prev_dewp = dewPoint
-            dewPoint = ((dht.temperature) -((100- dht.humidity)/5))
+            dewPoint = dewpoint_approximation(dht.temperature,dht.humidity)
+            #dewPoint = ((dht.temperature) -((100- dht.humidity)/5))
             #dewPoint = (237.3 * [np.log(dhum/100) + ( (17.27*ctemp) / (237.3+ctemp) )]) / (17.27 - [np.log(dhum/100) + ( (17.27*ctemp) / (237.3+ctemp) )])
             if blinkLed == 1:
                 GPIO.output(ledPin, GPIO.HIGH)  # led off
