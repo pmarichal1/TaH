@@ -39,11 +39,12 @@ def get_data(label_dict):
                 # read the data as binary data stream
                 temp_list = pickle.load(filehandle)
                 hum_list = pickle.load(filehandle)
+                dew_list = pickle.load(filehandle)
+
 
             print(f"TEMP {temp_list[-10:]}")
             print(f"Humidity {hum_list[-10:]}")
-            #Td = T - ((100 - RH)/5.)             (0°C × 9/5) + 32 = 32°F
-            print(f"DEW POINT {(((temp_list[-10] -30)/2) -((100- hum_list[-10])/5) *(9/5) +32)}")
+            print(f"Dew Point {dew_list[-10:]}")
             temp_elements = np.array(temp_list)
             temp_mean = np.mean(temp_elements, axis=0)
             temp_sd = np.std(temp_elements, axis=0)

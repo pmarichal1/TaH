@@ -110,12 +110,12 @@ def loop():
         #print(get_date_now())
         sumCnt += 1         #counting number of reading times
         chk = dht.readDHT11()     #read DHT11 and get a return value. Then determine whether data read is normal according to the return value.
-        dhum = float("%.2f" % dht.humidity)
         dht.temperature = dht.temperature *(9/5) +32    
         #print temp and humidity to LCD
         temperature = float("%.2f" % dht.temperature)
         if chk == 0 and dht.humidity < 100:
             dewPoint = dewpoint_approximation(dht.temperature,dht.humidity)
+            dewPoint = float("%.2f" % dewPoint)
             prev_dewp = dewPoint
             if blinkLed == 1:
                 GPIO.output(ledPin, GPIO.HIGH)  # led off
