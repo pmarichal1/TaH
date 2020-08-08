@@ -21,8 +21,8 @@ from datetime import datetime
 DHTPin = 15     #define the pin of DHT11
 buttonPin = 12    # define the buttonPin
 ledPin = 11 #LED
-valueDifferentialMinus = .15
-valueDifferentialPlus = 1.15
+valueDifferentialMinus = .25
+valueDifferentialPlus = 1.25
 import sys
 import numpy as np
  
@@ -34,11 +34,7 @@ import numpy as np
 # constants
 a = 17.271
 b = 237.7 # degC
- 
-# sys.argv[0] is program name
-#T=float(sys.argv[1])
-#RH=float(sys.argv[2])
- 
+
  
 def dewpoint_approximation(T,RH):
  
@@ -88,6 +84,9 @@ def loop():
     firstPass = 0
     while(True):
         if GPIO.input(buttonPin)==GPIO.LOW:
+            # shutdown box or stop flashing the LED during samples.
+            # if the button is clicked, the LED stops flashing
+            # if the button is pressed for 10 seconds, the box powers down
             loopCnt=0
             buttonPressed=0
             LCD.run_lcd("Confirm Shutdown ","","","")
@@ -108,23 +107,16 @@ def loop():
                     blinkLed = 1
                 time.sleep(1)
 
-        #time.sleep(3)
         #print(get_date_now())
         sumCnt += 1         #counting number of reading times
         chk = dht.readDHT11()     #read DHT11 and get a return value. Then determine whether data read is normal according to the return value.
-        #ctemp = float("%.2f" % dht.temperature)
-        ctemp = dht.temperature
         dhum = float("%.2f" % dht.humidity)
         dht.temperature = dht.temperature *(9/5) +32    
         #print temp and humidity to LCD
         temperature = float("%.2f" % dht.temperature)
-        #if temperature > 0 and dht.humidity > 0:
         if chk == 0 and dht.humidity < 100:
-            #dewPoint = (((temperature - 32) * (5/9)) -((100- dht.humidity)/5) *(9/5) +32)
-            prev_dewp = dewPoint
             dewPoint = dewpoint_approximation(dht.temperature,dht.humidity)
-            #dewPoint = ((dht.temperature) -((100- dht.humidity)/5))
-            #dewPoint = (237.3 * [np.log(dhum/100) + ( (17.27*ctemp) / (237.3+ctemp) )]) / (17.27 - [np.log(dhum/100) + ( (17.27*ctemp) / (237.3+ctemp) )])
+            prev_dewp = dewPoint
             if blinkLed == 1:
                 GPIO.output(ledPin, GPIO.HIGH)  # led off
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
@@ -145,7 +137,6 @@ def loop():
             else:
                 temp_average = sum(temperature_list) / len(temperature_list)
                 hum_average = sum(humidity_list) / len(humidity_list)
-                #print("Hum List", sum(humidity_list), " ", len(humidity_list), "Temp List", sum(temperature_list)," ", len(temperature_list)) 
             # following logic manages bad value from DHT
             if temperature > (temp_average - (temp_average*valueDifferentialMinus)) and temperature < (temp_average*valueDifferentialPlus):
                 prev_temp = temperature
