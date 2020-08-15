@@ -21,8 +21,8 @@ from datetime import datetime
 DHTPin = 15     #define the pin of DHT11
 buttonPin = 12    # define the buttonPin
 ledPin = 11 #LED
-valueDifferentialMinus = .25
-valueDifferentialPlus = 1.25
+valueDifferentialMinus = .50
+valueDifferentialPlus = 1.50
 import sys
 import numpy as np
  
