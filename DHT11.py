@@ -160,15 +160,18 @@ def loop():
             dewp_list.extend([dewPoint])
 
             #temp file to lock file reader for plotting
-            f = open("/home/pi/Projects/Device/TaH/lock.txt", 'w')
-            with open('/home/pi/Projects/Device/TaH/envfile.data', 'wb') as filehandle:  
+            #f = open("/home/pi/Projects/Device/TaH/lock.txt", 'w')
+            f = open("./lock.txt", 'w')
+            #with open('/home/pi/Projects/Device/TaH/envfile.data', 'wb') as filehandle:  
+            with open('./envfile.data', 'wb') as filehandle: 
                 # store the data as binary data stream
                 pickle.dump(temperature_list, filehandle)
                 pickle.dump(humidity_list, filehandle)
                 pickle.dump(dewp_list, filehandle)
                 pickle.dump(distance, filehandle)
             f.close()
-            os.remove("/home/pi/Projects/Device/TaH/lock.txt")
+            #os.remove("/home/pi/Projects/Device/TaH/lock.txt")
+            os.remove("./lock.txt")
             GPIO.output(ledPin, GPIO.LOW) # led off
 
         else:
@@ -184,15 +187,15 @@ def loop():
             dewp_list.extend([dewPoint])
 
             #temp file to lock file reader for plotting
-            f = open("/home/pi/Projects/Device/TaH/lock.txt", 'w')
-            with open('/home/pi/Projects/Device/TaH/envfile.data', 'wb') as filehandle:  
+            f = open("./lock.txt", 'w')
+            with open('./envfile.data', 'wb') as filehandle:  
                 # store the data as binary data stream
                 pickle.dump(temperature_list, filehandle)
                 pickle.dump(humidity_list, filehandle)
                 pickle.dump(dewp_list,filehandle)
                 pickle.dump(distance, filehandle)
             f.close()
-            os.remove("/home/pi/Projects/Device/TaH/lock.txt")
+            os.remove("./lock.txt")
             GPIO.output(ledPin, GPIO.LOW) # led off
             bad_reading+=1
             
