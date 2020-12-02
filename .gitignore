@@ -1,3 +1,6 @@
 __pycache__/
 envfile.data
-
+/Adafruit_LCD1602.pyc
+/Freenove_DHT.pyc
+/LCD.pyc
+/PCF8574.pyc
