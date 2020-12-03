@@ -71,7 +71,7 @@ while(1):
         print(f"---Plot graph finish---    Lock hit = {lock_hit}\n")
         plt.ion()
         plt.show()
-        time.sleep(6)
+        time.sleep(10)
         plt.pause(0.0001)
         plt.clf()
 

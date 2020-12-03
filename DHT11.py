@@ -225,9 +225,9 @@ def loop():
 
         time.sleep(5)
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)
-        time.sleep(5)
+        time.sleep(2)
         LCD.run_lcd("Bad Readings ",str(bad_reading),"","")
-        time.sleep(5)
+        time.sleep(2)
 
 
         
