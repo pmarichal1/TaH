@@ -12,10 +12,10 @@ import Freenove_DHT as DHT
 import LCD
 import numpy as np
 
-#const int DHTLIB_OK              = 0;
-#const int DHTLIB_ERROR_CHECKSUM  = -1;
-#const int DHTLIB_ERROR_TIMEOUT   = -2;
-#const int DHTLIB_INVALID_VALUE   = -999;
+DHTLIB_OK              = 0;
+#DHTLIB_CHECKSUM  = -1;
+#DHTLIB_TIMEOUT   = -2;
+#DHTLIB_INVALID   = -999;
 
 #import Blink
 import pickle
@@ -118,7 +118,7 @@ def loop():
         dht.temperature = dht.temperature *(9/5) +32    
         #print temp and humidity to LCD
         temperature = float("%.2f" % dht.temperature)
-        if chk == 0 and dht.humidity < 100:
+        if chk == DHTLIB_OK and dht.humidity < 100:
             dewPoint = dewpoint_approximation(dht.temperature,dht.humidity)
             dewPoint = float("%.2f" % dewPoint)
             prev_dewp = dewPoint
