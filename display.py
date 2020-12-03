@@ -34,7 +34,7 @@ def get_data(label_dict):
             lock_hit += 1
         else:
             loop += 1
-
+            time.sleep(10)
             with open('envfile.data', 'rb') as filehandle:  
                 # read the data as binary data stream
                 temp_list = pickle.load(filehandle)
