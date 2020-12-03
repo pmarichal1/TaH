@@ -12,6 +12,11 @@ import Freenove_DHT as DHT
 import LCD
 import numpy as np
 
+#const int DHTLIB_OK              = 0;
+#const int DHTLIB_ERROR_CHECKSUM  = -1;
+#const int DHTLIB_ERROR_TIMEOUT   = -2;
+#const int DHTLIB_INVALID_VALUE   = -999;
+
 #import Blink
 import pickle
 import socket
@@ -97,7 +102,7 @@ def loop():
                 if GPIO.input(buttonPin)==GPIO.LOW:
                     buttonPressed = buttonPressed + 1
                 if buttonPressed > 3:
-                    LCD.run_lcd("Shutting Down Now ","","","")
+                    LCD.run_lcd("Shutting Down ","","","")
                     #shutdown when switch is held down
                     GPIO.cleanup()
                     os.system("shutdown now -h")
@@ -120,7 +125,7 @@ def loop():
             if blinkLed == 1:
                 GPIO.output(ledPin, GPIO.HIGH)  # led off
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
-            time.sleep(2)
+            time.sleep(5)
             if dewPoint < 50:
                 dewPtext = "ok"
             elif dewPoint > 65:
@@ -198,8 +203,13 @@ def loop():
             os.remove("./lock.txt")
             GPIO.output(ledPin, GPIO.LOW) # led off
             bad_reading+=1
+            if chk == -1:
+                LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_CHECKSUM","")
+            elif chk == -2:
+                LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_TIMEOUT","")
+            else:
+                LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_INVALID","")
             
-            LCD.run_lcd("Bad DHT Reading ","","","")
             time.sleep(5)
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
             time.sleep(5)
@@ -216,6 +226,9 @@ def loop():
         time.sleep(5)
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)
         time.sleep(5)
+        LCD.run_lcd("Bad Readings ",str(bad_reading),"","")
+        time.sleep(5)
+
 
         
 if __name__ == '__main__':
