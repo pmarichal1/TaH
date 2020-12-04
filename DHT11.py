@@ -80,6 +80,7 @@ def loop():
     prev_dewp = 50
     dewPoint = 50
     bad_reading=0
+    good_reading=0
     temperature_list = []
     humidity_list = []
     dewp_list = []
@@ -101,15 +102,16 @@ def loop():
                 
                 if GPIO.input(buttonPin)==GPIO.LOW:
                     buttonPressed = buttonPressed + 1
+                    if blinkLed == 1:
+                        blinkLed  = 0
+                    else:
+                        blinkLed = 1
                 if buttonPressed > 3:
                     LCD.run_lcd("Shutting Down ","","","")
                     #shutdown when switch is held down
                     GPIO.cleanup()
                     os.system("shutdown now -h")
-                if blinkLed == 1:
-                    blinkLed  = 0
-                else:
-                    blinkLed = 1
+
                 time.sleep(1)
 
         #print(get_date_now())
@@ -122,8 +124,10 @@ def loop():
             dewPoint = dewpoint_approximation(dht.temperature,dht.humidity)
             dewPoint = float("%.2f" % dewPoint)
             prev_dewp = dewPoint
+            good_reading +=1
             if blinkLed == 1:
-                GPIO.output(ledPin, GPIO.HIGH)  # led off
+                GPIO.output(ledPin, GPIO.HIGH)  # led on
+                print("LED ON")
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
             time.sleep(5)
             if dewPoint < 50:
@@ -177,8 +181,8 @@ def loop():
             f.close()
             #os.remove("/home/pi/Projects/Device/TaH/lock.txt")
             os.remove("./lock.txt")
-            GPIO.output(ledPin, GPIO.LOW) # led off
-
+            #GPIO.output(ledPin, GPIO.LOW) # led off
+# failed reading DHT
         else:
             temperature = prev_temp
             dht.humidity = prev_hum
@@ -201,7 +205,7 @@ def loop():
                 pickle.dump(distance, filehandle)
             f.close()
             os.remove("./lock.txt")
-            GPIO.output(ledPin, GPIO.LOW) # led off
+            #GPIO.output(ledPin, GPIO.LOW) # led off
             bad_reading+=1
             if chk == -1:
                 LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_CHECKSUM","")
@@ -224,9 +228,11 @@ def loop():
 
 
         time.sleep(5)
+        GPIO.output(ledPin, GPIO.LOW) # led off
+        print("LED OFF")
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)
         time.sleep(2)
-        LCD.run_lcd("Bad Readings ",str(bad_reading),"","")
+        LCD.run_lcd("Bad Readings ",str(bad_reading)," Good ",str(good_reading))
         time.sleep(2)
 
 
