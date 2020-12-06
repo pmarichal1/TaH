@@ -115,7 +115,7 @@ def loop():
                 time.sleep(1)
 
         #print(get_date_now())
-        start_time = time.time()
+        #start_time = time.time()
         sumCnt += 1         #counting number of reading times
         chk = dht.readDHT11()     #read DHT11 and get a return value. Then determine whether data read is normal according to the return value.
         dht.temperature = dht.temperature *(9/5) +32    
@@ -230,7 +230,7 @@ def loop():
         time.sleep(5)
         GPIO.output(ledPin, GPIO.LOW) # led off
         print("LED OFF")
-        print("--- %s seconds ---" % (time.time() - start_time))
+        #print("--- %s seconds ---" % (time.time() - start_time))
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)
         time.sleep(2)
         LCD.run_lcd("Bad Readings ",str(bad_reading)," Good ",str(good_reading))
