@@ -16,7 +16,7 @@ class DHT(object):
 	
     DHTLIB_DHT11_WAKEUP = 0.020#0.018		#18ms
     DHTLIB_TIMEOUT = 0.0001			#100us oiginal
-    DHTLIB_TIMEOUT = 0.01			#1000us 
+    #DHTLIB_TIMEOUT = 0.01			#1000us 
 
 	
     humidity = 0

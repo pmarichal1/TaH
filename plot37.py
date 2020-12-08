@@ -63,6 +63,12 @@ while(1):
         plt.xlabel("Time (10 s)")
         plt.ylabel("Humidity % and Temp (F)")
         #plt.plot(yarr, hum_final_list, yarr1, temp_final_list, yarr3, dew_final_list)
+        #x = [datetime.datetime.now() + datetime.timedelta(hours=i) for i in range(len(y))]
+        # plot
+        #plt.plot(x,y)
+        #plt.gcf().autofmt_xdate()
+        #plt.show()
+
         plt.plot(yarr, hum_final_list, label='Humidity')
         plt.plot(yarr1, temp_final_list, label='Temp')
         plt.plot(yarr3, dew_final_list, label='DewPoint')

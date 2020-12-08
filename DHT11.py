@@ -229,11 +229,13 @@ def loop():
 
         time.sleep(5)
         GPIO.output(ledPin, GPIO.LOW) # led off
-        print(f"LED OFF Good= {good_reading} Bad={bad_reading} Chk={chk}")
+        print(f"        LED OFF Good= {good_reading} Bad={bad_reading} Chk={chk}")
+        print(f"Temp F {temperature}, Humidity {dht.humidity}")
+
         #print("--- %s seconds ---" % (time.time() - start_time))
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)
         time.sleep(2)
-        LCD.run_lcd("Bad Readings ",str(bad_reading)," Good ",str(good_reading))
+        LCD.run_lcd("Bad ",str(bad_reading)," Good ",str(good_reading))
         time.sleep(2)
 
 
