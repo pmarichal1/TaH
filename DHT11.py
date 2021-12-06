@@ -230,7 +230,7 @@ def loop():
         time.sleep(5)
         GPIO.output(ledPin, GPIO.LOW) # led off
         print(f"        LED OFF Good= {good_reading} Bad={bad_reading} Chk={chk}")
-        print('         Percent good', (good_reading/(good_reading+bad_reading)))
+        print('        Percent good', (good_reading/(good_reading+bad_reading)))
         print(f"Temp F {temperature}, Humidity {dht.humidity}")
 
         #print("--- %s seconds ---" % (time.time() - start_time))
