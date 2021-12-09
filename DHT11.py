@@ -7,6 +7,7 @@
 ########################################################################
 import RPi.GPIO as GPIO
 import time
+from datetime import datetime
 import os
 import Freenove_DHT as DHT
 import LCD
@@ -84,7 +85,7 @@ def loop():
     temperature_list = []
     humidity_list = []
     dewp_list = []
-    list_size = 9000
+    list_size = 900000
     distance=0
     blinkLed = 1
     firstPass = 0
@@ -232,6 +233,8 @@ def loop():
         print(f"        LED OFF Good= {good_reading} Bad={bad_reading} Chk={chk}")
         print('        Percent good', (good_reading/(good_reading+bad_reading)))
         print(f"Temp F {temperature}, Humidity {dht.humidity}")
+        now = datetime.now()
+        print('Now =',now)
 
         #print("--- %s seconds ---" % (time.time() - start_time))
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)
