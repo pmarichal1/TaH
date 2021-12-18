@@ -184,7 +184,7 @@ def loop():
             #os.remove("/home/pi/Projects/Device/TaH/lock.txt")
             os.remove("./lock.txt")
             #GPIO.output(ledPin, GPIO.LOW) # led off
-# failed reading DHT
+            # failed reading DHT
         else:
             temperature = prev_temp
             dht.humidity = prev_hum
@@ -231,7 +231,7 @@ def loop():
         time.sleep(5)
         GPIO.output(ledPin, GPIO.LOW) # led off
         print(f"        LED OFF Good= {good_reading} Bad={bad_reading} Chk={chk}")
-        print('        Percent good', (good_reading/(good_reading+bad_reading)))
+        print('        Percent good', ((good_reading/(good_reading+bad_reading)*100)),'%')
         print(f"Temp F {temperature}, Humidity {dht.humidity}")
         now = datetime.now()
         print('Now =',now)
