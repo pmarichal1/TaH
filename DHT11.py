@@ -12,6 +12,7 @@ import os
 import Freenove_DHT as DHT
 import LCD
 import numpy as np
+import math
 
 DHTLIB_OK              = 0;
 #DHTLIB_CHECKSUM  = -1;
@@ -41,6 +42,31 @@ import numpy as np
 a = 17.271
 b = 237.7 # degC
 
+# Dewpoint calculation
+def calc_dewpoint(tempC, rlHum):
+
+    r  = 8314.3
+    mw = 18.016
+
+    if tempC >= 0:
+        a = 7.5
+        b = 237.3
+    # over water:
+    # elif tempC < 0:
+    #     a = 7.6
+    #     b = 240.7
+    #
+    # over ice:
+    elif tempC < 0:
+        a = 9.5
+        b = 265.5
+
+    saettDampfDruck = 6.1078 * 10**((a*tempC)/(b+tempC))
+    dampfDruck = rlHum / 100.0 * saettDampfDruck
+    v = math.log10(dampfDruck/6.1078)
+    dewpC = b*v/(a-v)
+    dewpF = dewpC *(9/5) +32  
+    return dewpF
  
 def dewpoint_approximation(T,RH):
  
@@ -85,8 +111,8 @@ def loop():
     temperature_list = []
     humidity_list = []
     dewp_list = []
+    sampledate_list = []
     list_size = 900000
-    distance=0
     blinkLed = 1
     firstPass = 0
     while(True):
@@ -114,16 +140,18 @@ def loop():
                     os.system("shutdown now -h")
 
                 time.sleep(1)
+        sampledate = datetime.now()
+        #print('Sapledate =',sampledate)
 
-        #print(get_date_now())
-        #start_time = time.time()
         sumCnt += 1         #counting number of reading times
         chk = dht.readDHT11()     #read DHT11 and get a return value. Then determine whether data read is normal according to the return value.
+        tempC = dht.temperature
         dht.temperature = dht.temperature *(9/5) +32    
         #print temp and humidity to LCD
         temperature = float("%.2f" % dht.temperature)
         if chk == DHTLIB_OK and dht.humidity < 100:
-            dewPoint = dewpoint_approximation(dht.temperature,dht.humidity)
+            dewPoint = calc_dewpoint(tempC, dht.humidity)
+            #dewPoint = dewpoint_approximation(dht.temperature,dht.humidity)
             dewPoint = float("%.2f" % dewPoint)
             prev_dewp = dewPoint
             good_reading +=1
@@ -164,11 +192,14 @@ def loop():
             if len(temperature_list) > list_size:
                 temperature_list.pop(0)
                 humidity_list.pop(0)
-                dewp_list.pop(0)
+                dewp_list.pop.pop(0)
+                sampledate_list.pop(0)
                 
             temperature_list.extend([temperature])
             humidity_list.extend([dht.humidity])
             dewp_list.extend([dewPoint])
+            sampledate_list.extend([sampledate])
+            print('GOOD TIMELIST', sampledate_list)
 
             #temp file to lock file reader for plotting
             #f = open("/home/pi/Projects/Device/TaH/lock.txt", 'w')
@@ -179,7 +210,7 @@ def loop():
                 pickle.dump(temperature_list, filehandle)
                 pickle.dump(humidity_list, filehandle)
                 pickle.dump(dewp_list, filehandle)
-                pickle.dump(distance, filehandle)
+                pickle.dump(sampledate_list, filehandle)
             f.close()
             #os.remove("/home/pi/Projects/Device/TaH/lock.txt")
             os.remove("./lock.txt")
@@ -193,9 +224,12 @@ def loop():
                 temperature_list.pop(0)
                 humidity_list.pop(0)
                 dewp_list.pop(0)
+                sampledate_list.pop(0)
             temperature_list.extend([temperature])
             humidity_list.extend([dht.humidity])
             dewp_list.extend([dewPoint])
+            sampledate_list.extend([sampledate])
+            print('BAD TIMELIST', sampledate_list)
 
             #temp file to lock file reader for plotting
             f = open("./lock.txt", 'w')
@@ -204,7 +238,7 @@ def loop():
                 pickle.dump(temperature_list, filehandle)
                 pickle.dump(humidity_list, filehandle)
                 pickle.dump(dewp_list,filehandle)
-                pickle.dump(distance, filehandle)
+                pickle.dump(sampledate_list, filehandle)
             f.close()
             os.remove("./lock.txt")
             #GPIO.output(ledPin, GPIO.LOW) # led off
@@ -233,8 +267,6 @@ def loop():
         print(f"        LED OFF Good= {good_reading} Bad={bad_reading} Chk={chk}")
         print('        Percent good', ((good_reading/(good_reading+bad_reading)*100)),'%')
         print(f"Temp F {temperature}, Humidity {dht.humidity}")
-        now = datetime.now()
-        print('Now =',now)
 
         #print("--- %s seconds ---" % (time.time() - start_time))
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)

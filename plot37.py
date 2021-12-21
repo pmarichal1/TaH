@@ -8,6 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 import time
+from datetime import datetime, timedelta
+
 
 print(sys.version_info)
 print(platform.python_version())
@@ -30,6 +32,7 @@ while(1):
             temp_list = pickle.load(filehandle)
             hum_list = pickle.load(filehandle)
             dew_list = pickle.load(filehandle)
+            timedata_list = pickle.load(filehandle)
         print(f"Len Raw Humidity = {len(hum_list)},  Len Raw Temp = {len(temp_list)}")
         temp_elements = np.array(temp_list)
         temp_mean = np.mean(temp_elements, axis=0)
@@ -54,30 +57,53 @@ while(1):
         print(f"******Dew  mean = {dew_mean:2.2f}   dev={dew_sd:2.2f}  x={dew_mean + (dew_dev * dew_sd):2.2f} y={dew_mean - (dew_dev * dew_sd):2.2f}")
         dew_final_list = [x for x in dew_final_list if (x >= dew_mean - (dew_dev * dew_sd))]
         yarr3 = list(range(len(dew_final_list)))
-        
+                
         print(f"Len Filtered Humidity = {len(hum_final_list)},  Len Filtered Temp = {len(temp_final_list)}")
         print(f"Max Humidity = {max(hum_list)}  Min Humidity = {min(hum_list)}")
         print(f"Max Temperature = {max(temp_list)}  Min Temperature = {min(temp_list)}")
         print(f"Last Temperature = {temp_list[-1]}  Last Humidity = {hum_list[-1]}")
         
-        plt.xlabel("Time (10 s)")
-        plt.ylabel("Humidity % and Temp (F)")
-        #plt.plot(yarr, hum_final_list, yarr1, temp_final_list, yarr3, dew_final_list)
-        #x = [datetime.datetime.now() + datetime.timedelta(hours=i) for i in range(len(y))]
-        # plot
-        #plt.plot(x,y)
-        #plt.gcf().autofmt_xdate()
-        #plt.show()
 
-        plt.plot(yarr, hum_final_list, label='Humidity')
-        plt.plot(yarr1, temp_final_list, label='Temp')
-        plt.plot(yarr3, dew_final_list, label='DewPoint')
+        timedata_elements = np.array(timedata_list)
+
+
+        ##uncomment
+        plt.xlabel("Time")
+        plt.ylabel("Humidity % Temp (F) and DewP")
+        
+
+        
+        #new stuff
+
+        plt.style.use('ggplot')
+        #plt.style.use('dark_background')
+        dates= timedata_list
+
+        plt.plot_date(dates, temp_elements, linewidth=1, linestyle = 'solid', color='red', label='Temperature')
+        plt.plot_date(dates, hum_elements, linewidth=1, linestyle = 'solid', color='blue', label='HUmidity')
+        plt.plot_date(dates, dew_elements, linewidth=1, linestyle = 'solid', color='green', label='DewPoint')
         plt.legend(loc='best', bbox_to_anchor=(0.5, 1.00), shadow=True, ncol=2)
+
+
+        plt.tight_layout()
         plt.draw()
-        print(f"---Plot graph finish---    Lock hit = {lock_hit}\n")
         plt.ion()
         plt.show()
+
+
+        #temp old code commented
+        #plt.plot(yarr, hum_final_list, label='Humidity')
+        #plt.plot(yarr1, temp_final_list, label='Temp')
+        #plt.plot(yarr3, dew_final_list, label='DewPoint')
+        #plt.legend(loc='best', bbox_to_anchor=(0.5, 1.00), shadow=True, ncol=2)
+        #plt.draw()
+        #print(f"---Plot graph finish---    Lock hit = {lock_hit}\n")
+        #plt.ion()
+        #plt.show()
+        
+        
         time.sleep(10)
+        ##uncomment
         plt.pause(0.0001)
         plt.clf()
 
