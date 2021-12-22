@@ -63,18 +63,9 @@ while(1):
         print(f"Max Temperature = {max(temp_list)}  Min Temperature = {min(temp_list)}")
         print(f"Last Temperature = {temp_list[-1]}  Last Humidity = {hum_list[-1]}")
         
-
         timedata_elements = np.array(timedata_list)
-
-
-        ##uncomment
         plt.xlabel("Time")
         plt.ylabel("Humidity % Temp (F) and DewP")
-        
-
-        
-        #new stuff
-
         plt.style.use('ggplot')
         #plt.style.use('dark_background')
         dates= timedata_list
@@ -83,26 +74,12 @@ while(1):
         plt.plot_date(dates, hum_elements, linewidth=1, linestyle = 'solid', color='blue', label='HUmidity')
         plt.plot_date(dates, dew_elements, linewidth=1, linestyle = 'solid', color='green', label='DewPoint')
         plt.legend(loc='best', bbox_to_anchor=(0.5, 1.00), shadow=True, ncol=2)
-
-        #plt.tight_layout()
         plt.draw()
         plt.ion()
+        plt.xticks(rotation = 45)
         plt.show()
 
-
-        #temp old code commented
-        #plt.plot(yarr, hum_final_list, label='Humidity')
-        #plt.plot(yarr1, temp_final_list, label='Temp')
-        #plt.plot(yarr3, dew_final_list, label='DewPoint')
-        #plt.legend(loc='best', bbox_to_anchor=(0.5, 1.00), shadow=True, ncol=2)
-        #plt.draw()
-        #print(f"---Plot graph finish---    Lock hit = {lock_hit}\n")
-        #plt.ion()
-        #plt.show()
-        
-        
         time.sleep(10)
-        ##uncomment
         plt.pause(0.0001)
         plt.clf()
 
