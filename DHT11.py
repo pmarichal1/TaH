@@ -126,7 +126,7 @@ def loop():
             time.sleep(3)
             while(loopCnt < 5):
                 loopCnt= loopCnt+1
-                
+                print('Counting up to shutdown' , buttonPressed)
                 if GPIO.input(buttonPin)==GPIO.LOW:
                     buttonPressed = buttonPressed + 1
                     if blinkLed == 1:
@@ -139,12 +139,13 @@ def loop():
                     GPIO.cleanup()
                     os.system("shutdown now -h")
 
-                time.sleep(1)
+                time.sleep(2)
         sampledate = datetime.now()
-        #print('Sapledate =',sampledate)
-
-        sumCnt += 1         #counting number of reading times
-        chk = dht.readDHT11()     #read DHT11 and get a return value. Then determine whether data read is normal according to the return value.
+        #counting number of reading times
+        sumCnt += 1
+        #read DHT11 and get a return value. Then determine whether data read is normal according to the return value.
+        chk = dht.readDHT11()
+        # capture temperature in centigrade to be used to calculate dew point
         tempC = dht.temperature
         dht.temperature = dht.temperature *(9/5) +32    
         #print temp and humidity to LCD
@@ -157,7 +158,7 @@ def loop():
             good_reading +=1
             if blinkLed == 1:
                 GPIO.output(ledPin, GPIO.HIGH)  # led on
-                print("LED ON")
+                #print("LED ON")
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
             time.sleep(5)
             if dewPoint < 50:
@@ -199,12 +200,10 @@ def loop():
             humidity_list.extend([dht.humidity])
             dewp_list.extend([dewPoint])
             sampledate_list.extend([sampledate])
-            print('GOOD TIMELIST', sampledate_list)
+            print('\nTimestamp', sampledate)
 
             #temp file to lock file reader for plotting
-            #f = open("/home/pi/Projects/Device/TaH/lock.txt", 'w')
             f = open("./lock.txt", 'w')
-            #with open('/home/pi/Projects/Device/TaH/envfile.data', 'wb') as filehandle:  
             with open('./envfile.data', 'wb') as filehandle: 
                 # store the data as binary data stream
                 pickle.dump(temperature_list, filehandle)
@@ -212,61 +211,29 @@ def loop():
                 pickle.dump(dewp_list, filehandle)
                 pickle.dump(sampledate_list, filehandle)
             f.close()
-            #os.remove("/home/pi/Projects/Device/TaH/lock.txt")
             os.remove("./lock.txt")
-            #GPIO.output(ledPin, GPIO.LOW) # led off
+            print(f"        Good= {good_reading} Bad={bad_reading} Chk={chk}")
+            pctgood = float("%.2f" % ((good_reading/(good_reading+bad_reading)*100)))
+            print('        Percent good', pctgood,'%')
+            print(f"Temp F {temperature}, Humidity {dht.humidity}")
             # failed reading DHT
         else:
-            temperature = prev_temp
-            dht.humidity = prev_hum
-            dewPoint = prev_dewp
-            if len(temperature_list) > list_size:
-                temperature_list.pop(0)
-                humidity_list.pop(0)
-                dewp_list.pop(0)
-                sampledate_list.pop(0)
-            temperature_list.extend([temperature])
-            humidity_list.extend([dht.humidity])
-            dewp_list.extend([dewPoint])
-            sampledate_list.extend([sampledate])
-            print('BAD TIMELIST', sampledate_list)
-
-            #temp file to lock file reader for plotting
-            f = open("./lock.txt", 'w')
-            with open('./envfile.data', 'wb') as filehandle:  
-                # store the data as binary data stream
-                pickle.dump(temperature_list, filehandle)
-                pickle.dump(humidity_list, filehandle)
-                pickle.dump(dewp_list,filehandle)
-                pickle.dump(sampledate_list, filehandle)
-            f.close()
-            os.remove("./lock.txt")
-            #GPIO.output(ledPin, GPIO.LOW) # led off
             bad_reading+=1
             if chk == -1:
                 LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_CHECKSUM","")
+                print('DHTLIB_CHECKSUM')
             elif chk == -2:
                 LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_TIMEOUT","")
+                print('DHTLIB_TIMEOUT')
             else:
                 LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_INVALID","")
+                print('DHTLIB_INVALID')
             
-            time.sleep(5)
-            LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
-            if dewPoint < 50:
-                dewPtext = "ok"
-            elif dewPoint > 65:
-                dewPtext = "Very High"
-            else:
-                dewPtext = "High"
-            
-            LCD.run_lcd("DewP F ", str(dewPoint), "", dewPtext)
+            time.sleep(2)
 
 
         time.sleep(5)
         GPIO.output(ledPin, GPIO.LOW) # led off
-        print(f"        LED OFF Good= {good_reading} Bad={bad_reading} Chk={chk}")
-        print('        Percent good', ((good_reading/(good_reading+bad_reading)*100)),'%')
-        print(f"Temp F {temperature}, Humidity {dht.humidity}")
 
         #print("--- %s seconds ---" % (time.time() - start_time))
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)

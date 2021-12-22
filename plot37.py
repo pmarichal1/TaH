@@ -84,8 +84,7 @@ while(1):
         plt.plot_date(dates, dew_elements, linewidth=1, linestyle = 'solid', color='green', label='DewPoint')
         plt.legend(loc='best', bbox_to_anchor=(0.5, 1.00), shadow=True, ncol=2)
 
-
-        plt.tight_layout()
+        #plt.tight_layout()
         plt.draw()
         plt.ion()
         plt.show()
