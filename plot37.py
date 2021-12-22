@@ -69,10 +69,9 @@ while(1):
         plt.style.use('ggplot')
         #plt.style.use('dark_background')
         dates= timedata_list
-
-        plt.plot_date(dates, temp_elements, linewidth=1, linestyle = 'solid', color='red', label='Temperature', marker="None")
-        plt.plot_date(dates, hum_elements, linewidth=1, linestyle = 'solid', color='blue', label='HUmidity' , marker="None")
-        plt.plot_date(dates, dew_elements, linewidth=1, linestyle = 'solid', color='green', label='DewPoint' , marker="None")
+        plt.plot_date(dates, temp_elements, linewidth=1, linestyle = 'solid', fmt='r', label='Temperature', marker=None)
+        plt.plot_date(dates, hum_elements, linewidth=1, linestyle = 'solid', fmt='b', label='HUmidity' , marker=None)
+        plt.plot_date(dates, dew_elements, linewidth=1, linestyle = 'solid', fmt='g', label='DewPoint' , marker=None)
         plt.legend(loc='best', bbox_to_anchor=(0.5, 1.00), shadow=True, ncol=2)
         plt.draw()
         plt.ion()
