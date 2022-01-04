@@ -64,6 +64,7 @@ while(1):
         print(f"Last Temperature = {temp_list[-1]}  Last Humidity = {hum_list[-1]}")
         
         timedata_elements = np.array(timedata_list)
+        print(f"Last Date = {timedata_elements}")
         plt.xlabel("Time")
         plt.ylabel("Humidity % Temp (F) and DewP")
         plt.style.use('ggplot')
