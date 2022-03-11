@@ -232,7 +232,7 @@ def loop():
             time.sleep(2)
 
 
-        time.sleep(5)
+        time.sleep(30)
         GPIO.output(ledPin, GPIO.LOW) # led off
 
         #print("--- %s seconds ---" % (time.time() - start_time))
