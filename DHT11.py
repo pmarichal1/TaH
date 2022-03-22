@@ -204,9 +204,10 @@ def loop():
             # check if lock file exist since it means file is being updated and we should not access it
             while os.path.isfile('lockplot.txt'):
                 time.sleep(1)
+                print("lockplot active")
             #temp file to lock file reader for plotting
             f = open("./lock.txt", 'w')
-            with open('./envfile.data', 'wb') as filehandle: 
+            with open('./envfile.data', 'ab') as filehandle: 
                 # store the data as binary data stream
                 pickle.dump(temperature_list, filehandle)
                 pickle.dump(humidity_list, filehandle)
