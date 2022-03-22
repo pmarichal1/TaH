@@ -23,16 +23,21 @@ while(1):
         #Td = T - ((100 - RH)/5.)             (0°C × 9/5) + 32 = 32°F
  
     # check if lock file exist since it means file is being updated and we should not access it
-    if os.path.isfile('lock.txt'):
-        time.sleep(1)
-        lock_hit+=1
-    else:
+        while os.path.isfile('lock.txt'):
+                time.sleep(1)
+                lock_hit+=1
+                print("lock active")
+
+        f = open("./lockplot.txt", 'w')
         with open('envfile.data', 'rb') as filehandle:  
             # read the data as binary data stream
             temp_list = pickle.load(filehandle)
             hum_list = pickle.load(filehandle)
             dew_list = pickle.load(filehandle)
             timedata_list = pickle.load(filehandle)
+        f.flush()
+        f.close()
+        os.remove("./lockplot.txt")
         #print(f"Len Raw Humidity = {len(hum_list)},  Len Raw Temp = {len(temp_list)}")
         temp_elements = np.array(temp_list)
         temp_mean = np.mean(temp_elements, axis=0)
@@ -49,7 +54,7 @@ while(1):
         #print(f"******HUM  mean = {hum_mean:2.2f}   dev={hum_sd:2.2f}  x={hum_mean + (hum_dev * hum_sd):2.2f} y={hum_mean - (hum_dev * hum_sd):2.2f}")
         hum_final_list = [x for x in hum_final_list if (x >= hum_mean - (hum_dev * hum_sd))]
         yarr = list(range(len(hum_final_list)))
-        
+
         dew_elements = np.array(dew_list)
         dew_mean = np.mean(dew_elements, axis=0)
         dew_sd = np.std(dew_elements, axis=0)
@@ -63,7 +68,7 @@ while(1):
         #print(f"Max Temperature = {max(temp_list)}  Min Temperature = {min(temp_list)}")
         timedata_elements = np.array(timedata_list)
         print(f"Last Temperature = {temp_list[-1]}  Last Humidity = {hum_list[-1]} Last Date = {timedata_elements[-1]}")
-        
+
         #timedata_elements = np.array(timedata_list)
         #print(f"Last Date = {timedata_elements[-1]}")
         plt.xlabel("Time")
@@ -80,7 +85,7 @@ while(1):
         plt.xticks(rotation = 45)
         plt.show()
 
-        time.sleep(10)
+        time.sleep(30)
         plt.pause(0.0001)
         plt.clf()
 

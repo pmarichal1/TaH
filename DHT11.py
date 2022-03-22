@@ -201,7 +201,9 @@ def loop():
             dewp_list.extend([dewPoint])
             sampledate_list.extend([sampledate])
             print('\nTimestamp', sampledate)
-
+            # check if lock file exist since it means file is being updated and we should not access it
+            while os.path.isfile('lockplot.txt'):
+                time.sleep(1)
             #temp file to lock file reader for plotting
             f = open("./lock.txt", 'w')
             with open('./envfile.data', 'wb') as filehandle: 
@@ -210,6 +212,7 @@ def loop():
                 pickle.dump(humidity_list, filehandle)
                 pickle.dump(dewp_list, filehandle)
                 pickle.dump(sampledate_list, filehandle)
+            f.flush()
             f.close()
             os.remove("./lock.txt")
             print(f"        Good= {good_reading} Bad={bad_reading} Chk={chk}")
