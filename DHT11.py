@@ -207,7 +207,7 @@ def loop():
                 print("lockplot active")
             #temp file to lock file reader for plotting
             f = open("./lock.txt", 'w')
-            with open('./envfile.data', 'ab') as filehandle: 
+            with open('./envfile.data', 'wb') as filehandle: 
                 # store the data as binary data stream
                 pickle.dump(temperature_list, filehandle)
                 pickle.dump(humidity_list, filehandle)
