@@ -43,7 +43,7 @@ import numpy as np
 # constants
 a = 17.271
 b = 237.7 # degC
-SAMPLE_TIME = 1
+SAMPLE_TIME = 30
 
 # Dewpoint calculation
 def calc_dewpoint(tempC, rlHum):
