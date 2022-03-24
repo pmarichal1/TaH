@@ -10,7 +10,6 @@ import time
 from datetime import datetime
 import os
 import Freenove_DHT as DHT
-import LCD
 import numpy as np
 import math
 
@@ -23,6 +22,9 @@ DHTLIB_OK              = 0;
 import pickle
 import socket
 from datetime import datetime
+LCD_ENABLED = 0
+if LCD_ENABLED:
+    import LCD
 
 # time function
 DHTPin = 15     #define the pin of DHT11
@@ -41,6 +43,7 @@ import numpy as np
 # constants
 a = 17.271
 b = 237.7 # degC
+SAMPLE_TIME = 1
 
 # Dewpoint calculation
 def calc_dewpoint(tempC, rlHum):
@@ -113,33 +116,9 @@ def loop():
     dewp_list = []
     sampledate_list = []
     list_size = 900000
-    blinkLed = 1
     firstPass = 0
     while(True):
-        if GPIO.input(buttonPin)==GPIO.LOW:
-            # shutdown box or stop flashing the LED during samples.
-            # if the button is clicked, the LED stops flashing
-            # if the button is pressed for 10 seconds, the box powers down
-            loopCnt=0
-            buttonPressed=0
-            LCD.run_lcd("Confirm Shutdown ","","","")
-            time.sleep(3)
-            while(loopCnt < 5):
-                loopCnt= loopCnt+1
-                print('Counting up to shutdown' , buttonPressed)
-                if GPIO.input(buttonPin)==GPIO.LOW:
-                    buttonPressed = buttonPressed + 1
-                    if blinkLed == 1:
-                        blinkLed  = 0
-                    else:
-                        blinkLed = 1
-                if buttonPressed > 3:
-                    LCD.run_lcd("Shutting Down ","","","")
-                    #shutdown when switch is held down
-                    GPIO.cleanup()
-                    os.system("shutdown now -h")
-
-                time.sleep(2)
+        delay_time = 0
         sampledate = datetime.now()
         #counting number of reading times
         sumCnt += 1
@@ -156,10 +135,9 @@ def loop():
             dewPoint = float("%.2f" % dewPoint)
             prev_dewp = dewPoint
             good_reading +=1
-            if blinkLed == 1:
-                GPIO.output(ledPin, GPIO.HIGH)  # led on
-                #print("LED ON")
-            LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
+            GPIO.output(ledPin, GPIO.HIGH)  # led on
+            if LCD_ENABLED:
+                LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
             time.sleep(5)
             if dewPoint < 50:
                 dewPtext = "ok"
@@ -168,7 +146,8 @@ def loop():
             else:
                 dewPtext = "High"
             
-            LCD.run_lcd("DewP F ", str(dewPoint), "", dewPtext)
+            if LCD_ENABLED:
+                LCD.run_lcd("DewP F ", str(dewPoint), "", dewPtext)
 
             if firstPass == 0:
                 temp_average = temperature
@@ -182,13 +161,13 @@ def loop():
                 prev_temp = temperature
             else:
                 temperature = prev_temp
-                print("Bad Temp Value", temperature, " ", sumCnt)
+                #print("Bad Temp Value", temperature, " ", sumCnt)
 
             if dht.humidity > (hum_average - (hum_average*valueDifferentialMinus)) and dht.humidity < (hum_average*valueDifferentialPlus):
                 prev_hum = dht.humidity
             else:
                 dht.humidity = prev_hum
-                print("Bad Hum Value",dht.humidity, " ", sumCnt)
+                #print("Bad Hum Value",dht.humidity, " ", sumCnt)
 
             if len(temperature_list) > list_size:
                 temperature_list.pop(0)
@@ -200,7 +179,7 @@ def loop():
             humidity_list.extend([dht.humidity])
             dewp_list.extend([dewPoint])
             sampledate_list.extend([sampledate])
-            print('\nTimestamp', sampledate)
+            #print('\nTimestamp', sampledate)
             # check if lock file exist since it means file is being updated and we should not access it
             while os.path.isfile('lockplot.txt'):
                 time.sleep(1)
@@ -216,34 +195,56 @@ def loop():
             f.flush()
             f.close()
             os.remove("./lock.txt")
-            print(f"        Good= {good_reading} Bad={bad_reading} Chk={chk}")
+            #print(f"        Good= {good_reading} Bad={bad_reading} Chk={chk}")
             pctgood = float("%.2f" % ((good_reading/(good_reading+bad_reading)*100)))
-            print('        Percent good', pctgood,'%')
-            print(f"Temp F {temperature}, Humidity {dht.humidity}")
+            #print('        Percent good', pctgood,'%')
+            #print(f"Temp F {temperature}, Humidity {dht.humidity}")
+            #time.sleep(1)
+            GPIO.output(ledPin, GPIO.LOW) # led off
             # failed reading DHT
         else:
             bad_reading+=1
             if chk == -1:
-                LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_CHECKSUM","")
-                print('DHTLIB_CHECKSUM')
+                if LCD_ENABLED:
+                    LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_CHECKSUM","")
+                #print('DHTLIB_CHECKSUM')
             elif chk == -2:
-                LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_TIMEOUT","")
-                print('DHTLIB_TIMEOUT')
+                if LCD_ENABLED:
+                    LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_TIMEOUT","")
+                #print('DHTLIB_TIMEOUT')
             else:
-                LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_INVALID","")
-                print('DHTLIB_INVALID')
-            
-            time.sleep(2)
-
-
-        time.sleep(30)
-        GPIO.output(ledPin, GPIO.LOW) # led off
+                if LCD_ENABLED:
+                    LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_INVALID","")
+                    time.sleep(2)
+                #print('DHTLIB_INVALID')
+        while (delay_time < SAMPLE_TIME):
+            if GPIO.input(buttonPin)==GPIO.LOW:
+                # shutdown box or stop flashing the LED during samples.
+                # if the button is clicked, the LED stops flashing
+                # if the button is pressed for 10 seconds, the box powers down
+                loopCnt=0
+                buttonPressed=0
+                if LCD_ENABLED:
+                    LCD.run_lcd("Confirm Shutdown ","","","")
+                    time.sleep(3)
+                while(loopCnt < 5):
+                    print('Shutdown')
+                    GPIO.output(ledPin, GPIO.HIGH)  # led on
+                    time.sleep(.2)
+                    GPIO.output(ledPin, GPIO.LOW)  # led on
+                    time.sleep(.2)
+                    loopCnt +=1
+                GPIO.cleanup()
+                os.system("shutdown now -h")
+            time.sleep(1)
+            delay_time +=1
 
         #print("--- %s seconds ---" % (time.time() - start_time))
-        LCD.run_lcd("Time",get_time_now(),"",ipaddr)
-        time.sleep(2)
-        LCD.run_lcd("Bad ",str(bad_reading)," Good ",str(good_reading))
-        time.sleep(2)
+        if LCD_ENABLED:
+            LCD.run_lcd("Time",get_time_now(),"",ipaddr)
+            time.sleep(2)
+            LCD.run_lcd("Bad ",str(bad_reading)," Good ",str(good_reading))
+            time.sleep(2)
 
 
         
