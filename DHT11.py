@@ -12,6 +12,7 @@ import os
 import Freenove_DHT as DHT
 import numpy as np
 import math
+#import Adafruit_DHT
 
 DHTLIB_OK              = 0;
 #DHTLIB_CHECKSUM  = -1;
@@ -28,6 +29,9 @@ if LCD_ENABLED:
 
 # time function
 DHTPin = 15     #define the pin of DHT11
+#DHT2_SENSOR = Adafruit_DHT.DHT22
+#DHT2_PIN = 4
+
 buttonPin = 12    # define the buttonPin
 ledPin = 11 #LED
 valueDifferentialMinus = .50
@@ -89,13 +93,13 @@ def get_time_now():     # get system time
 
 def get_date_now():     # get system time
     return datetime.now().strftime('%A %B %D   %H:%M:%S')
-
+print("STARTING DHT11")
 testIP = "8.8.8.8"
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect((testIP, 0))
 ipaddr = s.getsockname()[0]
 host = socket.gethostname()
-#print ("IP:", ipaddr, " Host:", host)
+print ("IP:", ipaddr, " Host:", host)
 
 # main loop
 def loop():
@@ -124,12 +128,23 @@ def loop():
         sumCnt += 1
         #read DHT11 and get a return value. Then determine whether data read is normal according to the return value.
         chk = dht.readDHT11()
+    
         # capture temperature in centigrade to be used to calculate dew point
         tempC = dht.temperature
         dht.temperature = dht.temperature *(9/5) +32    
         #print temp and humidity to LCD
         temperature = float("%.2f" % dht.temperature)
+        
         if chk == DHTLIB_OK and dht.humidity < 100:
+            # NEW DHT2 CODE
+            #humidity2, temperature2 = Adafruit_DHT.read_retry(DHT2_SENSOR, DHT2_PIN)
+            #if humidity2 is not None and temperature2 is not None:
+            #    temperature2 = temperature2 * 9/5 + 32
+            #    temperature = temperature2
+                #print("DHT22 Temp={0:0.1f}F Humidity={1:0.1f}%".format(temperature2,humidity2))
+            #else:
+            #    print("Sensor DHT2 failure")
+            #    print("DHT11 Temp={0:0.1f}F Humidity={1:0.1f}%".format(temperature,dht.humidity))
             dewPoint = calc_dewpoint(tempC, dht.humidity)
             #dewPoint = dewpoint_approximation(dht.temperature,dht.humidity)
             dewPoint = float("%.2f" % dewPoint)
@@ -183,7 +198,7 @@ def loop():
             # check if lock file exist since it means file is being updated and we should not access it
             while os.path.isfile('lockplot.txt'):
                 time.sleep(1)
-                print("lockplot active")
+                print("lockplot active ",datetime.now())
             #temp file to lock file reader for plotting
             f = open("./lock.txt", 'w')
             with open('./envfile.data', 'wb') as filehandle: 
@@ -204,6 +219,7 @@ def loop():
             # failed reading DHT
         else:
             bad_reading+=1
+            #print("DHT11 bad read")
             if chk == -1:
                 if LCD_ENABLED:
                     LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_CHECKSUM","")

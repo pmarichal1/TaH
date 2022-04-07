@@ -68,7 +68,6 @@ while(1):
         #print(f"Max Temperature = {max(temp_list)}  Min Temperature = {min(temp_list)}")
         timedata_elements = np.array(timedata_list)
         print(f"Last Temperature = {temp_list[-1]}  Last Humidity = {hum_list[-1]} Last Date = {timedata_elements[-1]}")
-
         #timedata_elements = np.array(timedata_list)
         #print(f"Last Date = {timedata_elements[-1]}")
         plt.xlabel("Time")
