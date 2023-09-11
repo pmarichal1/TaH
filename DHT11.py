@@ -209,12 +209,12 @@ def loop():
             os.remove("./lock.txt")
             #GPIO.output(ledPin, GPIO.LOW) # led off
             bad_reading+=1
-            if chk == -1:
-                LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_CHECKSUM","")
-            elif chk == -2:
-                LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_TIMEOUT","")
-            else:
-                LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_INVALID","")
+            #if chk == -1:
+            #    LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_CHECKSUM","")
+            #elif chk == -2:
+            #    LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_TIMEOUT","")
+            #else:
+            #    LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_INVALID","")
             
             time.sleep(5)
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
