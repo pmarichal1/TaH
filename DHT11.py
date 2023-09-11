@@ -239,8 +239,8 @@ def loop():
         #print("--- %s seconds ---" % (time.time() - start_time))
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)
         time.sleep(2)
-        LCD.run_lcd("Bad ",str(bad_reading)," Good ",str(good_reading))
-        time.sleep(2)
+        #LCD.run_lcd("Bad ",str(bad_reading)," Good ",str(good_reading))
+        #time.sleep(2)
 
 
         
