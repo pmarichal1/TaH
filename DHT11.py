@@ -14,9 +14,6 @@ import LCD
 import numpy as np
 
 DHTLIB_OK              = 0;
-#DHTLIB_CHECKSUM  = -1;
-#DHTLIB_TIMEOUT   = -2;
-#DHTLIB_INVALID   = -999;
 
 #import Blink
 import pickle
@@ -31,11 +28,6 @@ valueDifferentialMinus = .50
 valueDifferentialPlus = 1.50
 import sys
 import numpy as np
- 
-# approximation valid for
-# 0 degC < T < 60 degC
-# 1% < RH < 100%
-# 0 degC < Td < 50 degC 
  
 # constants
 a = 17.271
@@ -115,12 +107,9 @@ def loop():
 
                 time.sleep(1)
 
-        #print(get_date_now())
-        #start_time = time.time()
         sumCnt += 1         #counting number of reading times
         chk = dht.readDHT11()     #read DHT11 and get a return value. Then determine whether data read is normal according to the return value.
         dht.temperature = dht.temperature *(9/5) +32    
-        #print temp and humidity to LCD
         temperature = float("%.2f" % dht.temperature)
         if chk == DHTLIB_OK and dht.humidity < 100:
             dewPoint = dewpoint_approximation(dht.temperature,dht.humidity)
@@ -130,6 +119,7 @@ def loop():
             if blinkLed == 1:
                 GPIO.output(ledPin, GPIO.HIGH)  # led on
                 print("LED ON")
+                print ("IP:", ipaddr, " Host:", host)
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
             time.sleep(5)
             if dewPoint < 50:
@@ -170,10 +160,7 @@ def loop():
             humidity_list.extend([dht.humidity])
             dewp_list.extend([dewPoint])
 
-            #temp file to lock file reader for plotting
-            #f = open("/home/pi/Projects/Device/TaH/lock.txt", 'w')
             f = open("./lock.txt", 'w')
-            #with open('/home/pi/Projects/Device/TaH/envfile.data', 'wb') as filehandle:  
             with open('./envfile.data', 'wb') as filehandle: 
                 # store the data as binary data stream
                 pickle.dump(temperature_list, filehandle)
@@ -181,10 +168,7 @@ def loop():
                 pickle.dump(dewp_list, filehandle)
                 pickle.dump(distance, filehandle)
             f.close()
-            #os.remove("/home/pi/Projects/Device/TaH/lock.txt")
             os.remove("./lock.txt")
-            #GPIO.output(ledPin, GPIO.LOW) # led off
-            # failed reading DHT
         else:
             temperature = prev_temp
             dht.humidity = prev_hum
@@ -197,7 +181,6 @@ def loop():
             humidity_list.extend([dht.humidity])
             dewp_list.extend([dewPoint])
 
-            #temp file to lock file reader for plotting
             f = open("./lock.txt", 'w')
             with open('./envfile.data', 'wb') as filehandle:  
                 # store the data as binary data stream
@@ -207,14 +190,7 @@ def loop():
                 pickle.dump(distance, filehandle)
             f.close()
             os.remove("./lock.txt")
-            #GPIO.output(ledPin, GPIO.LOW) # led off
             bad_reading+=1
-            #if chk == -1:
-            #    LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_CHECKSUM","")
-            #elif chk == -2:
-            #    LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_TIMEOUT","")
-            #else:
-            #    LCD.run_lcd("Bad DHT Read ",str(chk),"DHTLIB_INVALID","")
             
             time.sleep(5)
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
@@ -231,21 +207,19 @@ def loop():
         time.sleep(5)
         GPIO.output(ledPin, GPIO.LOW) # led off
         print(f"        LED OFF Good= {good_reading} Bad={bad_reading} Chk={chk}")
-        print('        Percent good', ((good_reading/(good_reading+bad_reading)*100)),'%')
+        
+        new_val = (good_reading/(good_reading+bad_reading))
+        print (f"{new_val:.2%}")        
         print(f"Temp F {temperature}, Humidity {dht.humidity}")
         now = datetime.now()
         print('Now =',now)
 
-        #print("--- %s seconds ---" % (time.time() - start_time))
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)
         time.sleep(2)
-        #LCD.run_lcd("Bad ",str(bad_reading)," Good ",str(good_reading))
-        #time.sleep(2)
 
 
         
 if __name__ == '__main__':
-    #print ('Program is starting ... ')
     try:
         loop()
     except KeyboardInterrupt:
