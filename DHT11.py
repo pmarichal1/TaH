@@ -62,6 +62,7 @@ host = socket.gethostname()
 
 # main loop
 def loop():
+    samplecnt = 0
     GPIO.setmode(GPIO.BOARD)       # Numbers GPIOs by physical location
     dht = DHT.DHT(DHTPin)   #create a DHT class object
     GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)    # Set buttonPin's mode is input, and pull up to high level(3.3V)
@@ -118,10 +119,8 @@ def loop():
             good_reading +=1
             if blinkLed == 1:
                 GPIO.output(ledPin, GPIO.HIGH)  # led on
-                print("LED ON")
-                print ("IP:", ipaddr, " Host:", host)
+                print ("\n *Good Sensor Reading", "IP:",ipaddr, " Host:", host, "SampleCnt", samplecnt)
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
-            time.sleep(5)
             if dewPoint < 50:
                 dewPtext = "ok"
             elif dewPoint > 65:
@@ -170,6 +169,7 @@ def loop():
             f.close()
             os.remove("./lock.txt")
         else:
+            print ("\n *Bad Sensor Reading", "IP:",ipaddr, " Host:", host, "SampleCnt", samplecnt)
             temperature = prev_temp
             dht.humidity = prev_hum
             dewPoint = prev_dewp
@@ -192,7 +192,7 @@ def loop():
             os.remove("./lock.txt")
             bad_reading+=1
             
-            time.sleep(5)
+            time.sleep(60)
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
             if dewPoint < 50:
                 dewPtext = "ok"
@@ -204,18 +204,16 @@ def loop():
             LCD.run_lcd("DewP F ", str(dewPoint), "", dewPtext)
 
 
-        time.sleep(5)
-        GPIO.output(ledPin, GPIO.LOW) # led off
-        print(f"        LED OFF Good= {good_reading} Bad={bad_reading} Chk={chk}")
-        
+        GPIO.output(ledPin, GPIO.LOW) # led off        
         new_val = (good_reading/(good_reading+bad_reading))
-        print (f"{new_val:.2%}")        
+        print (f"Percent readings good {new_val:.2%}")        
         print(f"Temp F {temperature}, Humidity {dht.humidity}")
         now = datetime.now()
-        print('Now =',now)
+        print('Date/Time =',now)
 
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)
         time.sleep(2)
+        samplecnt +=1
 
 
         
