@@ -192,7 +192,6 @@ def loop():
             os.remove("./lock.txt")
             bad_reading+=1
             
-            time.sleep(60)
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
             if dewPoint < 50:
                 dewPtext = "ok"
@@ -212,7 +211,7 @@ def loop():
         print('Date/Time =',now)
 
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)
-        time.sleep(2)
+        time.sleep(60)
         samplecnt +=1
 
 
