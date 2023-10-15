@@ -4,6 +4,7 @@
 # Description :	DHT Temperature & Humidity Sensor library for Raspberry
 # Author      : freenove
 # modification: 2018/08/03
+# Mod Paul M
 ########################################################################
 import RPi.GPIO as GPIO
 import time

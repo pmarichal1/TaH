@@ -121,6 +121,7 @@ def loop():
                 GPIO.output(ledPin, GPIO.HIGH)  # led on
                 print ("\n *Good Sensor Reading", "IP:",ipaddr, " Host:", host, "SampleCnt", samplecnt)
             LCD.run_lcd("Temp F ", str(temperature),"Humidity % ", dht.humidity)
+            time.sleep(2)
             if dewPoint < 50:
                 dewPtext = "ok"
             elif dewPoint > 65:
@@ -129,7 +130,7 @@ def loop():
                 dewPtext = "High"
             
             LCD.run_lcd("DewP F ", str(dewPoint), "", dewPtext)
-
+            time.sleep(2)
             if firstPass == 0:
                 temp_average = temperature
                 hum_average = dht.humidity
@@ -211,7 +212,7 @@ def loop():
         print('Date/Time =',now)
 
         LCD.run_lcd("Time",get_time_now(),"",ipaddr)
-        time.sleep(60)
+        time.sleep(5)
         samplecnt +=1
 
 
